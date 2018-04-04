@@ -38,5 +38,6 @@ void loop() {
     while(true) {}
   default:
     EEPROM.write(EEPROMaddress, 0);
+    toggleState = 0;
   }
 }

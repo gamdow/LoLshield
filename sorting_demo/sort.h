@@ -6,28 +6,28 @@
 typedef uint8_t element_t;
 
 element_t elements[N_COLUMNS];
-float highlights[N_COLUMNS];
+float reads[N_COLUMNS];
+float writes[N_COLUMNS];
+int read_count = 0;
+int write_count = 0;
 
 void init_elements() {
   for(byte i = 0; i < N_COLUMNS; ++i ) {
-    elements[i] = random(0, N_ROWS + 1);
-  }
-}
-
-void init_hightlights() {
-  for(byte i = 0; i < N_COLUMNS; ++i ) {
-    highlights[i] = 0;
+    elements[i] = random(0, N_ROWS);
+    reads[i] = 0;
+    writes[i] = 0;
+    read_count = 0;
+    write_count = 0;
   }
 }
 
 void decay_hightlights(float decay) {
   for(byte i = 0; i < N_COLUMNS; ++i ) {
-    highlights[i] *= decay;
+    reads[i] *= decay;
+    writes[i] *= decay;
+    read_count = 0;
+    write_count = 0;
   }
-}
-
-void set_hightlight(byte i) {
-  highlights[i] = 1.0f;
 }
 
 struct SortBase {
@@ -40,12 +40,27 @@ struct SortBase {
   }
 
   SortBase() {
-    init_elements();
-    init_hightlights();
+    init();
     finished = true;
   }
 
-  virtual void init() = 0;
+  virtual void init() {
+    init_elements();
+    finished = false;
+  }
+
+  element_t get(int i) const {
+    ++read_count;
+    reads[i] = 1.0f;
+    return elements[i];
+  }
+
+  void set(int i, element_t e) {
+    ++write_count;
+    writes[i] = 1.0f;
+    elements[i] = e;
+  }
+
   virtual void step() = 0;
 
   bool finished;
@@ -54,21 +69,16 @@ struct SortBase {
 struct BubbleSort : public SortBase {
 
   virtual void init() {
-    init_elements();
-    init_hightlights();
+    SortBase::init();
     idx = 0;
     max_idx = N_COLUMNS - 1;
-    SetFinished(false);
   }
 
   virtual void step() {
-
-    set_hightlight(idx);
-    if(elements[idx] > elements[idx + 1]) {
-      element_t t = elements[idx + 1];
-      elements[idx + 1] = elements[idx];
-      elements[idx] = t;
-      set_hightlight(idx + 1);
+    if(get(idx) > get(idx + 1)) {
+      element_t t = get(idx + 1);
+      set(idx + 1, get(idx));
+      set(idx, t);
     }
 
     if(idx + 1 == max_idx) {
@@ -82,90 +92,94 @@ struct BubbleSort : public SortBase {
     }
   }
 
-  byte idx, max_idx;
+  int8_t idx, max_idx;
+};
+
+struct CombSort : public SortBase {
+
+  virtual void init() {
+    SortBase::init();
+    idx = 0;
+    sp = N_COLUMNS - 1;
+  }
+
+  virtual void step() {
+    if(get(idx) > get(idx + sp)) {
+      element_t t = get(idx + sp);
+      set(idx + sp, get(idx));
+      set(idx, t);
+    }
+
+    if(idx + sp == N_COLUMNS - 1) {
+      idx = 0;
+      sp -= 1;
+      if(sp <= 1) {
+        SetFinished(true);
+      }
+    } else {
+      ++idx;
+    }
+  }
+
+  int8_t idx, sp;
 };
 
 struct CocktailSort : public SortBase {
 
   virtual void init() {
-    init_elements();
-    init_hightlights();
+    SortBase::init();
     idx = 0;
     min_idx = 0;
     max_idx = N_COLUMNS - 1;
     dir = 1;
-    SetFinished(false);
   }
 
   virtual void step() {
-
-    set_hightlight(idx);
-    if(dir > 0) {
-      if(elements[idx] > elements[idx + 1]) {
-        element_t t = elements[idx + 1];
-        elements[idx + 1] = elements[idx];
-        elements[idx] = t;
-        set_hightlight(idx + 1);
-      }
-      if(idx + 1 == max_idx) {
-        dir = 0;
+    bool const pos = dir > 0;
+    if(dir * (get(idx) - get(idx + dir)) > 0) {
+      element_t t = get(idx + dir);
+      set(idx + dir, get(idx));
+      set(idx, t);
+    }
+    if(idx + dir == (pos ? max_idx : min_idx)) {
+      if(pos) {
         max_idx -= 1;
-        if(max_idx - min_idx <= 1) {
-          SetFinished(true);
-        }
       } else {
-        ++idx;
+        min_idx += 1;
+      }
+      dir *= -1;
+      if(max_idx - min_idx <= 1) {
+        SetFinished(true);
       }
     } else {
-      if(elements[idx] < elements[idx - 1]) {
-        element_t t = elements[idx - 1];
-        elements[idx - 1] = elements[idx];
-        elements[idx] = t;
-        set_hightlight(idx - 1);
-      }
-      if(idx - 1 == min_idx) {
-        dir = 1;
-        min_idx += 1;
-        if(max_idx - min_idx <= 1) {
-          SetFinished(true);
-        }
-      } else {
-        --idx;
-      }
+      idx += dir;
     }
   }
 
-  byte idx, min_idx, max_idx, dir;
+  int8_t idx, min_idx, max_idx, dir;
 };
 
 struct SelectionSort : public SortBase {
 
   virtual void init() {
-    init_elements();
-    init_hightlights();
+    SortBase::init();
     start_idx = 0;
     idx = 1;
     min_idx = 0;
-    SetFinished(false);
   }
 
   virtual void step() {
-
     if(idx < N_COLUMNS)
     {
-      set_hightlight(min_idx);
-      set_hightlight(idx);
-      if(elements[idx] < elements[min_idx]) {
+      if(get(idx) < get(min_idx)) {
         min_idx = idx;
       }
       ++idx;
     } else {
-      set_hightlight(start_idx);
       if(min_idx != start_idx) {
-        set_hightlight(min_idx);
-        element_t t = elements[min_idx];
-        elements[min_idx] = elements[start_idx];
-        elements[start_idx] = t;
+        element_t t = get(min_idx);
+        set(min_idx, get(start_idx));
+        set(start_idx, t);
       }
       ++start_idx;
       min_idx = start_idx;
@@ -176,34 +190,31 @@ struct SelectionSort : public SortBase {
     }
   }
 
-  byte idx, start_idx, min_idx;
+  int8_t idx, start_idx, min_idx;
 };
 
 struct InsertionSort : public SortBase {
 
   virtual void init() {
-    init_elements();
-    init_hightlights();
+    SortBase::init();
     idx = 0;
     end_idx = 1;
-    sortValue = elements[end_idx];
-    SetFinished(false);
+    sortValue = get(end_idx);
   }
 
   virtual void step() {
-    set_hightlight(idx + 1);
-    if(idx == -1 or elements[idx] < sortValue)
+    if(idx == -1 or get(idx) < sortValue)
     {
-      elements[idx + 1] = sortValue;
+      set(idx + 1, sortValue);
       ++end_idx;
       if(end_idx == N_COLUMNS) {
         SetFinished(true);
       } else {
-        sortValue = elements[end_idx];
+        sortValue = get(end_idx);
         idx = end_idx - 1;
       }
     } else {
-      elements[idx + 1] = elements[idx];
+      set(idx + 1, get(idx));
       --idx;
     }
   }
