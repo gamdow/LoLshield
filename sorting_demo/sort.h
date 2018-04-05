@@ -66,89 +66,46 @@ struct SortBase {
   bool finished;
 };
 
-struct BubbleSort : public SortBase {
-
-  virtual void init() {
-    SortBase::init();
-    idx = 0;
-    max_idx = N_COLUMNS - 1;
-  }
-
-  virtual void step() {
-    if(get(idx) > get(idx + 1)) {
-      element_t t = get(idx + 1);
-      set(idx + 1, get(idx));
-      set(idx, t);
-    }
-
-    if(idx + 1 == max_idx) {
-      idx = 0;
-      max_idx -= 1;
-      if(max_idx <= 1) {
-        SetFinished(true);
-      }
-    } else {
-      ++idx;
-    }
-  }
-
-  int8_t idx, max_idx;
+struct BubbleSortData {
+  int8_t min_idx;
+  int8_t max_idx;
+  int8_t idx;
+  int8_t sp;
+  int8_t dir;
 };
 
-struct CombSort : public SortBase {
-
+struct BubbleSortBase : public BubbleSortData, public SortBase {
   virtual void init() {
     SortBase::init();
-    idx = 0;
-    sp = N_COLUMNS - 1;
-  }
-
-  virtual void step() {
-    if(get(idx) > get(idx + sp)) {
-      element_t t = get(idx + sp);
-      set(idx + sp, get(idx));
-      set(idx, t);
-    }
-
-    if(idx + sp == N_COLUMNS - 1) {
-      idx = 0;
-      sp -= 1;
-      if(sp <= 1) {
-        SetFinished(true);
-      }
-    } else {
-      ++idx;
-    }
-  }
-
-  int8_t idx, sp;
-};
-
-struct CocktailSort : public SortBase {
-
-  virtual void init() {
-    SortBase::init();
-    idx = 0;
     min_idx = 0;
     max_idx = N_COLUMNS - 1;
-    dir = 1;
+    idx = max_idx;
+    sp = 1;
+    dir = -1;
   }
 
-  virtual void step() {
-    bool const pos = dir > 0;
-    if(dir * (get(idx) - get(idx + dir)) > 0) {
-      element_t t = get(idx + dir);
-      set(idx + dir, get(idx));
-      set(idx, t);
+  void compSwap(int _l, int _r) {
+    if(dir * (get(_l) - get(_r)) > 0) {
+      element_t t = get(_r);
+      set(_r, get(_l));
+      set(_l, t);
     }
-    if(idx + dir == (pos ? max_idx : min_idx)) {
-      if(pos) {
-        max_idx -= 1;
-      } else {
-        min_idx += 1;
-      }
-      dir *= -1;
-      if(max_idx - min_idx <= 1) {
+  }
+
+  virtual void onBoundIdx() {}
+  virtual void onBoundBound() {}
+  virtual void onBoundDir() {}
+  virtual void onBoundSpace() {}
+
+  virtual void step() {
+    int n_idx = idx + dir * sp;
+    compSwap(idx, n_idx);
+    if(n_idx == (dir > 0 ? max_idx : min_idx)) {
+      onBoundBound();
+      onBoundIdx();
+      onBoundDir();
+      onBoundSpace();
+      if(max_idx - min_idx <= 1 || sp < 1) {
         SetFinished(true);
       }
     } else {
@@ -156,7 +113,46 @@ struct CocktailSort : public SortBase {
     }
   }
 
-  int8_t idx, min_idx, max_idx, dir;
+  BubbleSortData init_data;
+  int8_t min_idx, max_idx, idx, sp, dir;
+};
+
+struct BubbleSort : public BubbleSortBase {
+  virtual void onBoundIdx() {idx = dir > 0 ? min_idx : max_idx;}
+  virtual void onBoundBound() {
+    if(dir > 0) {
+      max_idx -= 1;
+    } else {
+      min_idx += 1;
+    }
+  }
+  virtual void onBoundDir() {}
+  virtual void onBoundSpace() {}
+};
+
+struct CocktailSort : public BubbleSortBase {
+  virtual void onBoundIdx() {}
+  virtual void onBoundBound() {
+    if(dir > 0) {
+      max_idx -= 1;
+    } else {
+      min_idx += 1;
+    }
+  }
+  virtual void onBoundDir() {dir *= -1;}
+  virtual void onBoundSpace() {}
+};
+
+struct CombSort : public BubbleSortBase {
+  virtual void init() {
+    BubbleSortBase::init();
+    sp = N_COLUMNS - 1;
+  }
+
+  virtual void onBoundIdx() {idx = dir > 0 ? min_idx : max_idx;}
+  virtual void onBoundBound() {}
+  virtual void onBoundDir() {}
+  virtual void onBoundSpace() {sp -= 1;}
 };
 
 struct SelectionSort : public SortBase {
@@ -221,6 +217,26 @@ struct InsertionSort : public SortBase {
 
   int8_t idx, end_idx;
   element_t sortValue;
+};
+
+int shell_sort_sq[] = {701, 301, 132, 57, 23, 10, 4, 1};
+
+struct ShellSort : public BubbleSortBase {
+  virtual void init() {
+    BubbleSortBase::init();
+    space_idx = 0;
+    while(shell_sort_sq[space_idx] > N_COLUMNS - 1) {
+      ++space_idx;
+    }
+    sp = shell_sort_sq[space_idx];
+  }
+
+  virtual void onBoundIdx() {idx = dir > 0 ? min_idx : max_idx;}
+  virtual void onBoundBound() {}
+  virtual void onBoundDir() {}
+  virtual void onBoundSpace() {sp = shell_sort_sq[++space_idx];}
+
+  int space_idx;
 };
 
 #endif
