@@ -97,7 +97,7 @@ struct BubbleSortBase : public SortBase {
     compSwap(idx, n_idx);
     if(n_idx == (dir > 0 ? max_idx : min_idx)) {
       onBoundary();
-      if(max_idx - min_idx <= 1 || sp < 1) {
+      if(max_idx - min_idx < 1 || sp < 1) {
         setFinished(true);
       }
     } else {
