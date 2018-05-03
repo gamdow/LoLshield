@@ -21,14 +21,16 @@ struct Sorting : public DemoBase {
   {
     addSorter(new BubbleSort());
     addSorter(new CocktailSort());
+    addSorter(new OddEvenSort());
     addSorter(new CombSort());
     addSorter(new InsertionSort());
-    addSorter(new SelectionSort());
     addSorter(new ShellSort());
+    addSorter(new SelectionSort());
     __current->init();
   }
 
-  virtual void updateImpl() {
+private:
+  virtual void __update() {
     if(__current->getFinished()) {
       if(__paused) {
         __current = __current->getNext();
@@ -48,13 +50,14 @@ struct Sorting : public DemoBase {
     }
   }
 
-  virtual Value getValue(Index col, Index row) const {
-    return row == __current->getElement(col)
-      ? __current->getWriteActivity(col) * ON_HIGH + (1.0f - __current->getWriteActivity(col)) * ON
-      : __current->getReadActivity(col) * OFF_HIGH + (1.0f - __current->getReadActivity(col)) * OFF;
+  virtual Value __getValue(Index _col, Index _row) const {
+    _col = N_COLUMNS - 1 - _col;
+    return _row == __current->getElement(_col)
+      ? __current->getWriteActivity(_col) * ON_HIGH + (1.0f - __current->getWriteActivity(_col)) * ON
+      : __current->getReadActivity(_col) * OFF_HIGH + (1.0f - __current->getReadActivity(_col)) * OFF;
   }
 
-  virtual float getFrameMSImpl() const {
+  virtual float __getFrameMS() const {
     if(__paused) {
       return (WRITE_TIME + READ_TIME) * 10;
     } else {
@@ -62,15 +65,13 @@ struct Sorting : public DemoBase {
     }
   }
 
-private:
   void addSorter(SortBase * _val) {
     if(__current == 0) {
       __current = _val;
-      _val->setNext(_val);
     } else {
-      _val->setNext(__current);
       __current->getLast()->setNext(_val);
     }
+    _val->setNext(__current);
   }
 
   SortBase * __current;

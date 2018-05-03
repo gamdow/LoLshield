@@ -14,7 +14,7 @@ struct SortBase : public Node {
   void init() {
     initElements();
     __finished = false;
-    initImpl();
+    __init();
   }
 
   void initElements() {
@@ -38,7 +38,7 @@ struct SortBase : public Node {
   inline float getWriteActivity(Index i) const {return __writes[i];}
   inline int getReadCount() const {return __read_count;}
   inline int getWriteCount() const {return __write_count;}
-  inline void step() {stepImpl();}
+  inline void step() {__step();}
   inline void setFinished(bool value) {__finished = value;}
   inline bool getFinished() const {return __finished;}
 
@@ -56,8 +56,8 @@ protected:
   }
 
 private:
-  virtual void initImpl() = 0;
-  virtual void stepImpl() = 0;
+  virtual void __init() = 0;
+  virtual void __step() = 0;
   static Element __elements[N_COLUMNS];
   static float __reads[N_COLUMNS];
   static float __writes[N_COLUMNS];

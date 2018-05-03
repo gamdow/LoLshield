@@ -3,29 +3,33 @@
 #include "sort_base.hpp"
 
 struct InsertionSort : public SortBase {
-  virtual void initImpl() {
-    idx = 0;
-    end_idx = 1;
-    sortValue = get(end_idx);
+private:
+  void resetIndex() {
+    __cached = get(__min);
+    __idx = __min + 1;
   }
 
-  virtual void stepImpl() {
-    if(idx == -1 || get(idx) >= sortValue)
+  virtual void __init() {
+    __min = N_COLUMNS - 2;
+    resetIndex();
+  }
+
+  virtual void __step() {
+    if(__idx >= N_COLUMNS || get(__idx) >= __cached)
     {
-      set(idx + 1, sortValue);
-      ++end_idx;
-      if(end_idx == N_COLUMNS) {
+      set(__idx - 1, __cached);
+      --__min;
+      if(__min < 0) {
         setFinished(true);
-      } else {
-        sortValue = get(end_idx);
-        idx = end_idx - 1;
+        return;
       }
+      resetIndex();
     } else {
-      set(idx + 1, get(idx));
-      --idx;
+      set(__idx - 1, get(__idx));
+      ++__idx;
     }
   }
 
-  SignedIndex idx, end_idx;
-  Element sortValue;
+  SignedIndex __idx, __min;
+  Element __cached;
 };

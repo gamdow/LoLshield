@@ -9,20 +9,20 @@ struct DemoBase {
   static Index const N_COLUMNS = DemoParams::N_COLUMNS;
   static Value const MAX_VALUE = DemoParams::MAX_VALUE;
 
-  void update() {updateImpl();}
+  void update() {__update();}
 
   void display() {
     for (Index row = 0; row < N_ROWS; ++row) {
       for (Index col = 0; col < N_COLUMNS; ++col) {
-        DemoParams::set(col, row, getValue(col, row));
+        DemoParams::set(col, row, __getValue(col, row));
       }
     }
   }
 
-  float getFrameMS() const {return getFrameMSImpl();}
+  float getFrameMS() const {return __getFrameMS();}
 
 private:
-  virtual void updateImpl() = 0;
-  virtual Value getValue(Index col, Index row) const = 0;
-  virtual float getFrameMSImpl() const = 0;
+  virtual void __update() = 0;
+  virtual Value __getValue(Index _col, Index _row) const = 0;
+  virtual float __getFrameMS() const = 0;
 };

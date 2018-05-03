@@ -14,14 +14,14 @@ DemoBase * demo = 0;
 
 void setup() {
   // Serial.begin(9600);
-  int toggle = EEPROM.read(toggleAddr) % 1;
+  int toggle = EEPROM.read(toggleAddr) % 1;//2;
   EEPROM.write(toggleAddr, toggle + 1);
   if(toggle == 0) {
     int state = EEPROM.read(stateAddr);
     switch(state) {
       default: state = 0; // fall-through
-      case 0: demo = new BinaryClock(); break;
-      case 1: demo = new Sorting(); break;
+      //case 0: demo = new BinaryClock(); break;
+      case 0: demo = new Sorting(); break;
     }
     EEPROM.write(stateAddr, state + 1);
   }

@@ -3,33 +3,37 @@
 #include "sort_base.hpp"
 
 struct SelectionSort : public SortBase {
-  virtual void initImpl() {
-    start_idx = 0;
-    idx = 1;
-    min_idx = 0;
+private:
+  void resetIndex() {
+    __max_val = __tar;
+    __idx = 0;
   }
 
-  virtual void stepImpl() {
-    if(idx < N_COLUMNS)
+  virtual void __init() {
+    __tar = N_COLUMNS - 1;
+    resetIndex();
+  }
+
+  virtual void __step() {
+    if(__idx < __tar)
     {
-      if(get(idx) > get(min_idx)) {
-        min_idx = idx;
+      if(get(__idx) > get(__max_val)) {
+        __max_val = __idx;
       }
-      ++idx;
+      ++__idx;
     } else {
-      if(min_idx != start_idx) {
-        Element t = get(min_idx);
-        set(min_idx, get(start_idx));
-        set(start_idx, t);
+      if(__max_val != __tar) {
+        Element t = get(__max_val);
+        set(__max_val, get(__tar));
+        set(__tar, t);
       }
-      ++start_idx;
-      min_idx = start_idx;
-      idx = start_idx + 1;
-      if(idx == N_COLUMNS) {
+      --__tar;
+      resetIndex();
+      if(__idx == __tar) {
         setFinished(true);
       }
     }
   }
 
-  SignedIndex idx, start_idx, min_idx;
+  SignedIndex __idx, __tar, __max_val;
 };
