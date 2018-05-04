@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../demo_params.hpp"
+#include "../display_params.hpp"
 #include "../link_list.hpp"
 
 struct SortBase : public Node {
-  typedef typename DemoParams::IndexType Index;
-  typedef typename DemoParams::ValueType Element;
+  typedef typename Display::IndexType Index;
+  typedef typename Display::ValueType Element;
   typedef int SignedIndex;
   typedef int SignedElement;
-  static Index const N_COLUMNS = DemoParams::N_COLUMNS;
-  static Index const N_ROWS = DemoParams::N_ROWS;
+  static Index const N_COLUMNS = Display::N_COLUMNS;
+  static Index const N_ROWS = Display::N_ROWS;
 
   void init() {
     initElements();

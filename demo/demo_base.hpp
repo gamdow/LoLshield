@@ -1,20 +1,20 @@
 #pragma once
 
-#include "demo_params.hpp"
+#include "display_params.hpp"
 
 struct DemoBase {
-  typedef typename DemoParams::IndexType Index;
-  typedef typename DemoParams::ValueType Value;
-  static Index const N_ROWS = DemoParams::N_ROWS;
-  static Index const N_COLUMNS = DemoParams::N_COLUMNS;
-  static Value const MAX_VALUE = DemoParams::MAX_VALUE;
+  typedef typename Display::IndexType Index;
+  typedef typename Display::ValueType Value;
+  static Index const N_ROWS = Display::N_ROWS;
+  static Index const N_COLUMNS = Display::N_COLUMNS;
+  static Value const MAX_VALUE = Display::MAX_VALUE;
 
   void update() {__update();}
 
   void display() {
     for (Index row = 0; row < N_ROWS; ++row) {
       for (Index col = 0; col < N_COLUMNS; ++col) {
-        DemoParams::set(col, row, __getValue(col, row));
+        Display::set(col, row, __getValue(col, row));
       }
     }
   }

@@ -1,10 +1,11 @@
-#include <Arduino.h>
+///#include <Arduino.h>
 #include <Charliplexing.h>
 #include <EEPROM.h>
 
 #include "demo_base.hpp"
 #include "binary_clock.hpp"
 #include "sorting.hpp"
+#include "little_man_computer.hpp"
 
 int const toggleAddr = 0;
 int const stateAddr = 1;
@@ -14,14 +15,15 @@ DemoBase * demo = 0;
 
 void setup() {
   // Serial.begin(9600);
-  int toggle = EEPROM.read(toggleAddr) % 1;//2;
+  int toggle = EEPROM.read(toggleAddr) % 2;
   EEPROM.write(toggleAddr, toggle + 1);
   if(toggle == 0) {
     int state = EEPROM.read(stateAddr);
     switch(state) {
       default: state = 0; // fall-through
-      //case 0: demo = new BinaryClock(); break;
-      case 0: demo = new Sorting(); break;
+      case 0: demo = new BinaryClock(); break;
+      case 1: demo = new Sorting(); break;
+      case 2: demo = new LittleManComputer(); break;
     }
     EEPROM.write(stateAddr, state + 1);
   }
