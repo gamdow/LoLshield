@@ -3,6 +3,8 @@
 #include "sort_base.hpp"
 
 struct SelectionSort : public SortBase {
+  SelectionSort(SortData & _data) : SortBase(_data) {}
+
 private:
   void resetIndex() {
     __max_val = __tar;

@@ -68,10 +68,10 @@ struct LittleManComputer : public DemoBase {
   static Value const OFF_HIGH = 1u;
   static Value const ON_HIGH = MAX_VALUE;
 
-  static float const MS_INSTRUCTION = 200.0f;
-  static float const MS_COUNTER_LERP = 20.0f;
-  static float const MS_MAN_LERP = 50.0f;
-  static float const MS_INBOX_OUTBOX = 500.0f;
+  static float constexpr MS_INSTRUCTION = 200.0f;
+  static float constexpr MS_COUNTER_LERP = 20.0f;
+  static float constexpr MS_MAN_LERP = 50.0f;
+  static float constexpr MS_INBOX_OUTBOX = 500.0f;
 
   enum Indexes {
     INBOX_INDEX = -1,

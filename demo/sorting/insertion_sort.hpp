@@ -3,6 +3,8 @@
 #include "sort_base.hpp"
 
 struct InsertionSort : public SortBase {
+  InsertionSort(SortData & _data) : SortBase(_data) {}
+  
 private:
   void resetIndex() {
     __cached = get(__min);

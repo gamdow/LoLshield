@@ -4,6 +4,8 @@
 
 struct BubbleSortBase : public SortBase {
 protected:
+  BubbleSortBase(SortData & _data) : SortBase(_data) {}
+
   void shrinkBoundary() {
     if(__dir_sp > 0) {
       __max -= 1;
@@ -69,6 +71,7 @@ private:
 };
 
 struct BubbleSort : public BubbleSortBase {
+  BubbleSort(SortData & _data) : BubbleSortBase(_data) {}
 private:
   virtual bool __onBoundary() {
     shrinkBoundary();
@@ -78,6 +81,8 @@ private:
 };
 
 struct CocktailSort : public BubbleSortBase {
+  CocktailSort(SortData & _data) : BubbleSortBase(_data) {}
+  
 private:
   virtual bool __onBoundary() {
     shrinkBoundary();
@@ -87,6 +92,8 @@ private:
 };
 
 struct CombSort : public BubbleSortBase {
+  CombSort(SortData & _data) : BubbleSortBase(_data) {}
+
 private:
   virtual void __initBubble() {
     __comp_sp = N_COLUMNS - 1;
@@ -99,8 +106,9 @@ private:
 };
 
 struct OddEvenSort : public BubbleSortBase {
-  OddEvenSort()
-    : __boundary_hit(false)
+  OddEvenSort(SortData & _data)
+    : BubbleSortBase(_data)
+    , __boundary_hit(false)
   {}
 
 private:

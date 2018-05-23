@@ -4,7 +4,7 @@
 
 struct BinaryClock : public DemoBase {
   static long const MAX_COUNT = 1L << N_COLUMNS;
-  static float const FRAME_TIME_MS = static_cast<float>(60 * 60 * 1000L / MAX_COUNT);
+  static float constexpr FRAME_TIME_MS = static_cast<float>(60 * 60 * 1000L / MAX_COUNT);
 
   BinaryClock()
     : __count(0)

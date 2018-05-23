@@ -5,6 +5,8 @@
 SortBase::SignedIndex const STEP_SEQUENCE[] = {7, 3, 1, 0};
 
 struct ShellSort : public SortBase {
+  ShellSort(SortData & _data) : SortBase(_data) {}
+
   void resetMax() {
     __max = N_COLUMNS - 1;
   }
