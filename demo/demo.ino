@@ -12,7 +12,7 @@
 
 int const TOGGLE_ADDRESS = 0;
 int const STATE_ADDRESS = 1;
-unsigned long const DEMO_DURATION = 60 * 60 * 1000L; // 1 hour
+unsigned long const DEMO_DURATION = 1000L * 60 * 60; // 1 hour
 unsigned long last_demo_change = 0L;
 unsigned long last_frame_update = 0L;
 float elasped_remainder = 0.f;

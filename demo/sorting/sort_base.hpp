@@ -59,6 +59,7 @@ struct SortBase : public Node {
   static Index const N_ROWS = Display::N_ROWS;
 
   SortBase(SortData & _data) : __data(_data) {}
+  virtual ~SortBase() {}
 
   void init() {
     __data.initElements();

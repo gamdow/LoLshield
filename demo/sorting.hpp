@@ -31,6 +31,18 @@ struct Sorting : public DemoBase {
     __current->init();
   }
 
+  virtual ~Sorting() {
+    if(__current != 0) {
+      SortBase * end = __current;
+      SortBase * next = end;
+      do {
+        SortBase * cur = next;
+        next = static_cast<SortBase*>(cur->getNext());
+        delete cur;
+      } while(next != end);
+    }
+  }
+
 private:
   virtual void __update() {
     if(__current->getFinished()) {
