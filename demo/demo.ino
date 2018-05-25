@@ -2,7 +2,7 @@
 #include <Charliplexing.h>
 #include <EEPROM.h>
 
-#define DEBUG_MODE
+// #define DEBUG_MODE
 
 #include "demo_base.hpp"
 #include "binary_clock.hpp"

@@ -6,8 +6,9 @@ namespace MISC {
 
 struct Program {
   typedef int16_t e_type;
-  static e_type bitShift(e_type _v, size_t o, size_t n) {return (~(-1 << n) & _v) << o;}
-  static e_type bitMask(size_t o, size_t n) {return bitShift(-1, o, n);}
+  template<typename T>
+  static T bitShift(T _v, size_t o, size_t n) {return (~(-1 << n) & _v) << o;}
+  static e_type bitMask(size_t o, size_t n) {return bitShift<e_type>(-1, o, n);}
   static size_t msbIndex(int _v);
   template<size_t N> Program(MISC::Expression const (&_prog)[N]) : __prog(_prog), __prog_size(N), __mem(0) {init();}
   ~Program() {delete [] __mem;}
@@ -20,6 +21,7 @@ struct Program {
   e_type getAccumulator() const {return __acc;}
   void reset();
   bool next();
+  void print();
 private:
   static size_t const DATA_SIZE = 100u;
   static size_t const VALUE_BITS = 8u;
@@ -47,13 +49,23 @@ void Program::init() {
   __mem = new e_type[__prog_size + DATA_SIZE]();
   for(size_t i = 0; i < __prog_size; ++i) {
     Expression const & e = __prog[i];
-    __mem[i] = bitShift(e.value(), 0, VALUE_BITS)
-      + (e.isRef() ? bitShift(labels[e.label_ref()], 0, VALUE_BITS) : 0);
+    __mem[i] = e.value()
+      + (e.isRef() ? labels[e.label_ref()] : 0);
   }
+  print();
 }
 
 void Program::reset() {
   init();
+}
+
+void Program::print() {
+  Serial.println("Program:");
+  for(size_t i = 0; i < __prog_size; ++i) {
+    Serial.print(i);
+    Serial.print(':');
+    Serial.println(__mem[i]);
+  }
 }
 
 void Program::printState(e_type val) {

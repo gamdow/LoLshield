@@ -6,21 +6,10 @@ typedef int16_t e_type;
 typedef int8_t id_type;
 
 struct Expression {
-  Expression(int _val);
-  Expression(int _id, int _ref, int _val, bool _dref);
+  Expression(e_type _val);
+  Expression(id_type _id, id_type _ref, e_type _val, bool _dref);
   Expression(Expression const & _l, Expression const & _r);
-  void print() {
-#ifdef DEBUG_MODE
-    Serial.print("__label_id:");
-    Serial.print(__label_id);
-    Serial.print("__label_ref:");
-    Serial.print(__label_ref);
-    Serial.print("__value:");
-    Serial.print(__value);
-    Serial.print("__no_deref:");
-    Serial.print(__no_deref);
-#endif
-  }
+  void print();
   bool isLabel() const {return __label_id > 0;}
   bool isRef() const {return __label_ref > 0;}
   id_type label_id() const {return __label_id;}
@@ -46,7 +35,7 @@ Expression::Expression(int _val)
 {
 }
 
-Expression::Expression(int _id, int _ref, int _val, bool _dref)
+Expression::Expression(id_type _id, id_type _ref, e_type _val, bool _dref)
   : __label_id(_id)
   , __label_ref(_ref)
   , __value(_val)
@@ -60,6 +49,19 @@ Expression::Expression(Expression const & _l, Expression const & _r)
   , __value(_l.__value | _r.__value)
   , __no_deref(_l.__no_deref | _r.__no_deref)
 {
+}
+
+void Expression::print() {
+#ifdef DEBUG_MODE
+  Serial.print("__label_id:");
+  Serial.print(__label_id);
+  Serial.print("__label_ref:");
+  Serial.print(__label_ref);
+  Serial.print("__value:");
+  Serial.print(__value);
+  Serial.print("__no_deref:");
+  Serial.print(__no_deref);
+#endif
 }
 
 Expression operator+(Expression const & _l, int _r) {
