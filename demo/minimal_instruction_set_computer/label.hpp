@@ -1,7 +1,5 @@
 #pragma once
 
-//#include <cstddef>
-
 #include "expression.hpp"
 
 namespace MISC {
@@ -11,35 +9,45 @@ private:
   static int __id;
 public:
   Label() : Expression(0, __id++, 0, false) {}
-  Expression operator()(Expression const & _v) const;
-  Expression operator()() const;
+  Expression operator()(Expression const & _v) const {return Expression(Expression(__label_ref, 0, 0, false), _v);}
+  Expression operator()() const {return Expression(Expression(__label_ref, 0, 0, false), Expression(0));}
 };
 
 int Label::__id = 1;
 
-Expression Label::operator()(Expression const & _v) const {
-  return Expression(Expression(__label_ref, 0, 0, false), _v);
-}
-
-Expression Label::operator()() const {
-  return Expression(Expression(__label_ref, 0, 0, false), Expression(0));
-}
-
 struct LabelMap {
-private:
-  void construct(Expression const * _prog, size_t _n);
 public:
-  template<size_t N> LabelMap(Expression const (&_prog)[N]) : __count(0) {construct(_prog, N);}
-  int operator[](int id) const;
+  LabelMap(Expression const * _prog, size_t _n);
+  ~LabelMap() {delete [] __id; delete [] __address;}
+  e_type operator[](id_type id) const;
+  void print() const;
 private:
-  static size_t const MAX = 20u;
-  int __id[MAX];
-  int __address[MAX];
-  size_t __count;
+  id_type * __id;
+  e_type * __address;
+  size_t __size;
 };
 
-int LabelMap::operator[](int id) const {
-  for(size_t i = 0; i < __count; ++i) {
+LabelMap::LabelMap(Expression const * _prog, size_t _n)
+  : __id(0)
+  , __address(0)
+{
+  __size = 0;
+  for(size_t i = 0; i < _n; ++i) if(_prog[i].isLabel()) ++__size;
+  __id = new id_type[__size]();
+  __address = new e_type[__size]();
+  size_t count = 0;
+  for(size_t i = 0; i < _n; ++i) {
+    Expression const & e = _prog[i];
+    if(e.isLabel()) {
+      __id[count] = e.label_id();
+      __address[count] = i;
+      ++count;
+    }
+  }
+}
+
+e_type LabelMap::operator[](id_type id) const {
+  for(size_t i = 0; i < __size; ++i) {
     if(__id[i] == id) {
       return __address[i];
     }
@@ -47,18 +55,16 @@ int LabelMap::operator[](int id) const {
   return 0;
 }
 
-void LabelMap::construct(Expression const * _prog, size_t _n) {
-  Serial.print("LabelMap::construct ");
-  Serial.println(_n);
-  using namespace MISC;
-  for(size_t i = 0; i < _n; ++i) {
-    Expression const & e = _prog[i];
-    if(e.isLabel()) {
-      __id[__count] = e.label_id();
-      __address[__count] = i;
-      ++__count;
-    }
+void LabelMap::print() const {
+#ifdef DEBUG_MODE
+  Serial.println("LabelMap:");
+  for(size_t i = 0; i < __size; ++i) {
+    Serial.print(__id[i]);
+    Serial.print(' ');
+    Serial.println(__address[i]);
   }
+  Serial.println(' ');
+#endif
 }
 
 // Label const A;

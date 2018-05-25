@@ -31,13 +31,13 @@ private:
   static float constexpr MS_RESET = 5000.0f;
 
   void lerp(int & _from, int _to) {
-    float speed = max(float(abs(_to - _from)) / WIDTH, 1.0f);
-    _from += (_to < _from ? -1 : 1) * speed;
+    float speed = abs(float(_to - _from)) / WIDTH;
+    _from += (_to > _from ? 1.0f : -1.0f)  * max(speed, 1.0f);
   }
 
   void reset() {
     __program.reset();
-    __instruction.init(__program.getNextInstruction(), __program.getAccumulator(), __program.getNextValue());
+    __instruction.init(__program);
   }
 
   virtual void __update() {
@@ -62,7 +62,7 @@ private:
     } else if(__instruction.animate()) {
       __frame_ms = MS_ANIM_FRAME;
     } else if(__program.next()) {
-      __instruction.init(__program.getNextInstruction(), __program.getAccumulator(), __program.getNextValue());
+      __instruction.init(__program);
       __frame_ms = MS_INSTRUCTION;
     } else {
       reset();

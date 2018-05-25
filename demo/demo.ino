@@ -2,6 +2,8 @@
 #include <Charliplexing.h>
 #include <EEPROM.h>
 
+#define DEBUG_MODE
+
 #include "demo_base.hpp"
 #include "binary_clock.hpp"
 #include "sorting.hpp"
@@ -17,6 +19,9 @@ float elasped_remainder = 0.f;
 DemoBase * demo = 0;
 
 void nextDemo() {
+#ifdef DEBUG_MODE
+  Serial.println("Next Demo");
+#endif
   delete demo;
   int state = EEPROM.read(STATE_ADDRESS);
   switch(state) {
@@ -31,12 +36,10 @@ void nextDemo() {
 }
 
 void setup() {
-  //Serial.begin(9600);
-  // int toggle = EEPROM.read(TOGGLE_ADDRESS) % 2;
-  // EEPROM.write(TOGGLE_ADDRESS, toggle + 1);
-  // if(toggle == 0) {
-    nextDemo();
-  // }
+#ifdef DEBUG_MODE
+  Serial.begin(9600);
+#endif
+  nextDemo();
   LedSign::Init(GRAYSCALE);
   last_frame_update = millis();
 }

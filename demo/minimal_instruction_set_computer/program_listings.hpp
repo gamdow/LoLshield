@@ -37,21 +37,32 @@ Label const C;
 Label const D;
 Label const OUT;
 Label const START;
+Label const CONTINUE;
+Label const WAIT;
+Label const WRITE_ZERO;
 Label const RESET_DIV;
 Label const NEXT_DIV;
 Label const INC_COUNT;
 Label const OUT_REF;
+Label const OUT_REF_COPY;
 
 static Expression const listing[] = {
-START(LOAD), 0,
-  STORE, A,
-  INC, START + 1,
-  ND + SUB, A,
-  JMP_N, RESET_DIV,
+START(ND + INC), 1,
+  ND + SUB, 32,
+  JMP_N, CONTINUE,
   HALT,
-RESET_DIV(LOAD), A,
-  DEC, A,
+WRITE_ZERO(INC), OUT_REF,
+  STORE, WAIT - 1,
+  STORE, WAIT + 1,
+  ND + LOAD, 4,
+  STORE, 0,
+WAIT(DEC), 0,
   JMP_Z, START,
+  JMP, WAIT,
+CONTINUE(LOAD), START + 1,
+RESET_DIV(STORE), A,
+  DEC, A,
+  JMP_Z, WRITE_ZERO,
   INC, A,
   ND + LOAD, 1,
   STORE, B,
@@ -66,16 +77,17 @@ INC_COUNT(INC), D,
   JMP_N, NEXT_DIV,
   STORE, C,
   JMP_P, INC_COUNT,
-  LOAD, B,
-  STORE, OUT_REF(OUT),
   INC, OUT_REF,
+  STORE, OUT_REF_COPY,
+  LOAD, B,
+  STORE, OUT_REF_COPY(0),
   LOAD, D,
-  STORE, A,
   JMP, RESET_DIV,
 A(0),
 B(0),
 C(0),
 D(0),
+OUT_REF(OUT),
 OUT(0)
 };
 

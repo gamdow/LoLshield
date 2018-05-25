@@ -9,6 +9,8 @@ struct DemoBase {
   static Index const N_COLUMNS = Display::N_COLUMNS;
   static Value const MAX_VALUE = Display::MAX_VALUE;
 
+  virtual ~DemoBase() {};
+
   void update() {__update();}
 
   void display() {
